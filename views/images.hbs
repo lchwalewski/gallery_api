@@ -1,0 +1,8 @@
+{{# each images}}
+<div>
+  {{# each this}}
+  <img src="{{this.path}}" alt="">
+  <p>{{this.owner.username}}</p>
+</div>
+
+{{/each}} {{/each}}
