@@ -17,7 +17,9 @@ const gallery = require('./routes/gallery');
 const app = express();
 
 // database connection
-mongoose.connect(db.database, { useMongoClient: true });
+mongoose.connect(db.database, {
+    useMongoClient: true
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -31,13 +33,6 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(cookieParser());
-/* app.use(session({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: false,
-    //store: new mongoStore({ mongooseConnection: mongoose.connection }), // save session to database using curent db connection
-    cookie: { maxAge: 180 * 60 * 1000 } // time (ms) after session will be deleted from database
-})); */
 app.use(passport.initialize());
 app.use(passport.session());
 require('./config/passport')(passport);
@@ -49,20 +44,19 @@ app.use('/gallery', gallery);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-    const err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+    const error = new Error('Not Found');
+    error.status = 404;
+    next(error);
 });
 
 // error handler
-app.use((err, req, res, next) => {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
+app.use((error, req, res, next) => {
+    res.status(error.status || 500);
+    res.json({
+        error: {
+            message: error.message
+        }
+    });
 });
 
 module.exports = app;

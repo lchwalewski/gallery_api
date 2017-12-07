@@ -45,7 +45,7 @@ router.get('/images', passport.authenticate('jwt', { session: false }), (req, re
         res.status(200).render('images', {
             images: images
         });
-    }).populate('owner');
+    }).populate('owner', ['_id', 'username', 'email']);
 });
 router.get('/imagesjson', passport.authenticate('jwt', { session: false }), (req, res) => {
     Image.find((err, images) => {
@@ -53,7 +53,7 @@ router.get('/imagesjson', passport.authenticate('jwt', { session: false }), (req
         res.status(200).json({
             images: images
         });
-    }).populate('owner');
+    }).populate('owner', ['_id', 'username', 'email']);
 });
 /* router.get('/:galleryName/:photoId', (req, res) => {
     res.status(200).json({
