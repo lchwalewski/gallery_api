@@ -17,7 +17,11 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
-    } // User hashed password
+    },
+    gallerys: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Gallery',
+    }]
 });
 
 userSchema.methods.comparePassword = function(candidatePassword, callback) {

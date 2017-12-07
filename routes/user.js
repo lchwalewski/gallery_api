@@ -5,11 +5,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt-nodejs');
 const config = require('../config/auth');
 const User = require('../models/user');
+const Gallery = require('../models/gallery');
+const Image = require('../models/image');
 
 
 router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
-    User.findOne({ _id: req.user._id }, (err, user) => {
+    User.findById({ _id: req.user.id }, (err, user) => {
         if (err) { console.log(err); } else { res.status(200).json({ user: user }); }
+    }).populate({
+        path: 'gallerys',
+        populate: { path: 'images' },
+        // populate: { path: 'owner' }
     });
 });
 
