@@ -9,12 +9,24 @@ const Gallery = require('../models/gallery');
 const Image = require('../models/image');
 
 
-router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
-    User.findById({ _id: req.user.id }, (err, user) => {
-        if (err) { console.log(err); } else { res.status(200).json({ user: user }); }
+router.get('/profile', passport.authenticate('jwt', {
+    session: false
+}), (req, res) => {
+    User.findById({
+        _id: req.user.id
+    }, (err, user) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.status(200).json({
+                user: user
+            });
+        }
     }).populate({
-        path: 'gallerys',
-        populate: { path: 'images' },
+        path: 'galleries',
+        populate: {
+            path: 'images'
+        },
         // populate: { path: 'owner' }
     });
 });
@@ -27,16 +39,27 @@ router.post('/register', (req, res) => {
         username: req.body.username
     });
     user.save((err) => {
-        if (err) { console.log(err); } else { res.status(201).json({ message: 'User registered' }); };
+        if (err) {
+            console.log(err);
+        } else {
+            res.status(201).json({
+                message: 'User registered'
+            });
+        }
     });
 });
 router.post('/login', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    User.findOne({ email: email }, (err, user) => {
+    User.findOne({
+        email: email
+    }, (err, user) => {
         if (err) console.log(err);
         if (!user) {
-            res.status(404).json({ success: false, msg: 'User not found' });
+            res.status(404).json({
+                success: false,
+                msg: 'User not found'
+            });
         } else {
             user.comparePassword(password, (err, isMatch) => {
                 if (err) console.log(err);
@@ -54,7 +77,10 @@ router.post('/login', (req, res) => {
                         }
                     });
                 } else {
-                    return res.status(400).json({ success: false, msg: 'Wrong password' });
+                    return res.status(400).json({
+                        success: false,
+                        msg: 'Wrong password'
+                    });
                 }
             });
         }

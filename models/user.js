@@ -18,7 +18,7 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    gallerys: [{
+    galleries: [{
         type: Schema.Types.ObjectId,
         ref: 'Gallery',
     }]

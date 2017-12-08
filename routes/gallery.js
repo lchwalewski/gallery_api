@@ -66,7 +66,7 @@ router.post('/newgallery', passport.authenticate('jwt', { session: false }), (re
     });
     gallery.save((err) => {
         if (err) { console.log(err); } else {
-            User.findByIdAndUpdate(id, { $push: { gallerys: gallery } }, { new: true }, (err, doc) => {
+            User.findByIdAndUpdate(id, { $push: { galleries: gallery } }, { new: true }, (err, doc) => {
                 if (err) {
                     console.log(err);
                     console.log('Error adding new gallery');
