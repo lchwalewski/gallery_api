@@ -7,9 +7,8 @@ const Gallery = require('../models/gallery');
 const User = require('../models/user');
 const router = express.Router();
 
-
 router.post('/upload', passport.authenticate('jwt', { session: false }), (req, res) => {
-    upload(req, res, (err) => {
+    upload(req, res, err => {
         if (err) {
             console.log(err);
             res.status(400).json({
@@ -28,69 +27,95 @@ router.post('/upload', passport.authenticate('jwt', { session: false }), (req, r
                     name: req.file.filename,
                     destination: req.file.destination,
                     path: req.file.path,
+                    size: req.file.size,
+                    mimetype: req.file.mimetype,
+                    encoding: req.file.encoding,
                     owner: req.user
                 });
-                image.save((err) => {
-                    if (err) console.log(err);
-                    res.status(201).json({
-                        success: 'true',
-                        message: 'File uploaded'
+                image.save()
+                    .then(result => {
+                        res.status(201).json({
+                            success: 'true',
+                            message: 'File uploaded',
+                            addedImage: result
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({
+                            error: err
+                        });
                     });
-                });
             }
         }
     });
 });
 router.get('/images', passport.authenticate('jwt', { session: false }), (req, res) => {
-    Image.find((err, images) => {
-        if (err) console.log(err);
-        res.status(200).render('images', {
-            images: images
+    Image.find()
+        .populate('owner', ['_id', 'username', 'email'])
+        .then(images => {
+            res.status(200).json(images);
+        })
+        .catch(err => {
+            res.status(404).json({
+                error: err
+            });
         });
-    }).populate('owner', ['_id', 'username', 'email']);
-});
-router.get('/imagesjson', passport.authenticate('jwt', { session: false }), (req, res) => {
-    Image.find((err, images) => {
-        if (err) console.log(err);
-        res.status(200).json({
-            images: images
-        });
-    }).populate('owner', ['_id', 'username', 'email']);
 });
 router.post('/newgallery', passport.authenticate('jwt', { session: false }), (req, res) => {
     const id = req.user._id;
-    console.log(id);
     const gallery = new Gallery({
         name: req.body.galleryName,
         owner: req.user
     });
-    gallery.save((err) => {
-        if (err) { console.log(err); } else {
-            User.findByIdAndUpdate(id, { $push: { galleries: gallery } }, { new: true }, (err, doc) => {
-                if (err) {
-                    console.log(err);
-                    console.log('Error adding new gallery');
-                } else {
-                    console.log(doc);
+    gallery.save()
+        .then(() => {
+            User.findByIdAndUpdate(id, { $push: { galleries: gallery } }, { new: true },
+                (err, doc) => {
+                    if (err) {
+                        console.log(err);
+                        console.log('Error adding new gallery');
+                    } else {
+                        console.log(doc);
+                    }
                 }
+            );
+            res.status(201).json({
+                message: `New gallery ${gallery.name} created`
             });
-            res.status(201).json({ message: `New gallery ${gallery.name} created` });
-        }
-    });
+        })
+        .catch(err => {
+            res.status(400).json(err);
+        });
 });
 
-router.get('/image/:id', (req, res) => {
+router.get('/image/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
     const id = req.params.id;
-    Image.findById(id, (err, image) => {
-        if (err) console.log(err);
-        res.status(200).json({ image: image });
-    }).populate('owner', ['_id', 'username', 'email']);
+    Image.findById(id)
+        .populate('owner', ['_id', 'username', 'email'])
+        .then(image => {
+            res.status(200).json({
+                image: image
+            });
+        })
+        .catch(err => {
+            res.status(400).json({
+                message: 'Image not found!'
+            });
+        });
 });
 router.get('/', (req, res) => {
-    Gallery.find((err, gallerys) => {
-        if (err) console.log(err);
-        res.status(200).json({ gallery: gallerys });
-    }).populate('owner', ['_id', 'username', 'email']).populate('images');
+    Gallery.find()
+        .populate('owner', ['_id', 'username', 'email'])
+        .populate('images')
+        .then(galleries => {
+            res.status(200).json({
+                gallery: galleries
+            });
+        })
+        .catch(err => {
+            res.status(400).json(err);
+        });
 });
 
 // Storage engine
