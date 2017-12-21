@@ -11,21 +11,12 @@ const Image = require('../models/image');
 
 router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
     User.findById({ _id: req.user.id })
+        .select('-password -galleries')
         .exec()
-        .select('-password')
-        .populate({
-            path: 'galleries',
-            populate: {
-                path: 'images'
-            },
-            // populate: { path: 'owner' }
+        .then(user => {
+            res.status(200).json(user);
         })
-        .then((user) => {
-            res.status(200).json({
-                user: user
-            });
-        })
-        .catch((err) => {
+        .catch(err => {
             res.status(500).json(err);
         });
 });
@@ -43,7 +34,7 @@ router.post('/register', (req, res) => {
                 message: 'User registered'
             });
         })
-        .catch((err) => {
+        .catch(err => {
             res.status(500).json(err);
         });
 });
@@ -54,7 +45,7 @@ router.post('/login', (req, res) => {
             email: email
         })
         .exec()
-        .then((user) => {
+        .then(user => {
             if (!user) {
                 res.status(404).json({
                     success: false,
@@ -85,7 +76,7 @@ router.post('/login', (req, res) => {
                 });
             }
         })
-        .catch((err) => {
+        .catch(err => {
             console.log(err);
         });
 });

@@ -35,6 +35,11 @@ const imageSchema = new Schema({
         type: String,
         required: false
     }, // Description of image 
+    public: {
+        type: Boolean,
+        required: true,
+        default: true
+    }, // Visibility of image
     comments: {
         type: Schema.Types.ObjectId,
         ref: 'Comments'
@@ -43,6 +48,8 @@ const imageSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     } // Informations about user who added image (email, name, etc.)
+}, {
+    timestamps: { createdAt: 'create_date', updatedAt: 'update_date' }
 });
 
 module.exports = mongoose.model('Image', imageSchema);

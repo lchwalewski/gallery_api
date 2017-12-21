@@ -12,6 +12,7 @@ const db = require('./config/db');
 
 const index = require('./routes/index');
 const user = require('./routes/user');
+const images = require('./routes/images');
 const gallery = require('./routes/gallery');
 
 const app = express();
@@ -41,6 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/user', user);
+app.use('/images', images);
 app.use('/gallery', gallery);
 
 // catch 404 and forward to error handler
@@ -55,7 +57,8 @@ app.use((error, req, res, next) => {
     res.status(error.status || 500);
     res.json({
         error: {
-            message: error.message
+            message: error.message,
+            error: {}
         }
     });
 });

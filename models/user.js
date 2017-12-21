@@ -22,6 +22,8 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Gallery',
     }]
+}, {
+    timestamps: { createdAt: 'create_date', updatedAt: 'update_date' }
 });
 
 userSchema.methods.comparePassword = function(candidatePassword, callback) {
