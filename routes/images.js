@@ -9,7 +9,15 @@ const Gallery = require('../models/gallery');
 const Image = require('../models/image');
 
 router.get('/', (req, res) => {
-
+    Image.find({ public: true })
+        .populate('owner', ['_id', 'username'])
+        .exec()
+        .then(images => {
+            res.status(200).json(images);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
 });
 router.get('/myimages', passport.authenticate('jwt', { session: false }), (req, res) => {
     User.findById({ _id: req.user.id })
@@ -33,7 +41,7 @@ router.get('/myimages', passport.authenticate('jwt', { session: false }), (req, 
 router.get('/image/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
     const id = req.params.id;
     Image.findById(id)
-        .populate('owner', ['_id', 'username', 'email'])
+        .populate('owner', ['_id', 'username'])
         .exec()
         .then(image => {
             res.status(200).json({

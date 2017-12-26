@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require('bcryptjs');
 const config = require('../config/auth');
 const User = require('../models/user');
 const Gallery = require('../models/gallery');
@@ -22,21 +22,31 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), (req, r
 });
 
 router.post('/register', (req, res) => {
-    const hashedPassword = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(8), null);
-    const user = new User({
-        email: req.body.email,
-        password: hashedPassword,
-        username: req.body.username
-    });
-    user.save()
-        .then(() => {
-            res.status(201).json({
-                message: 'User registered'
+    //const hashedPassword = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+    bcrypt.hash(req.body.password, 10, (err, hash) => {
+        if (err) {
+            console.log(err);
+        } else {
+            const user = new User({
+                email: req.body.email,
+                password: hash,
+                username: req.body.username
             });
-        })
-        .catch(err => {
-            res.status(500).json(err);
-        });
+            user.save()
+                .then((result) => {
+                    console.log(result);
+                    res.status(201).json({
+                        message: 'User registered'
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json(err);
+                });
+        }
+
+    });
+
 });
 router.post('/login', (req, res) => {
     const email = req.body.email;
