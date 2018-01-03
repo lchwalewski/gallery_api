@@ -17,8 +17,8 @@ router.get('/', (req, res) => {
                 gallery: galleries
             });
         })
-        .catch(err => {
-            res.status(400).json(err);
+        .catch(error => {
+            res.status(400).json(error);
         });
 });
 router.post('/newgallery', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -29,23 +29,57 @@ router.post('/newgallery', passport.authenticate('jwt', { session: false }), (re
     });
     gallery.save()
         .then(() => {
-            User.findByIdAndUpdate(id, { $push: { galleries: gallery } }, { new: true }, (err, doc) => {
-                if (err) {
-                    console.log(err);
+            User.findByIdAndUpdate(id, { $push: { galleries: gallery } }, { new: true }, (error, newGalleryInfos) => {
+                if (error) {
+                    console.log(error);
                     console.log('Error adding new gallery');
                 } else {
-                    console.log(doc);
+                    console.log(newGalleryInfos);
                 }
             });
             res.status(201).json({
-                message: `New gallery ${gallery.name} created`
+                message: `New gallery " ${gallery.name} " created`
             });
         })
-        .catch(err => {
-            res.status(400).json(err);
+        .catch(error => {
+            res.status(400).json(error);
         });
 });
-
+router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+    const id = req.params.id;
+    Gallery.findByIdAndRemove(id)
+        .where('owner').equals(req.user.id)
+        .then(deletedGallery => {
+            if (deletedGallery <= 0) {
+                res.status(403).json({
+                    error: 'Gallery with this ID not found'
+                });
+            } else {
+                res.status(200).json({
+                    message: 'Gallery deleted',
+                    deletedGallery: deletedGallery
+                });
+            }
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+/*  ADD THIS ROUTE FOR ADMINS ONLY
+router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+    const id = req.params.id;
+    Gallery.findByIdAndRemove(id)
+        .then(deletedGallery => {
+            res.status(200).json({
+                message: 'Gallery deleted',
+                deletedGallery: deletedGallery
+            });
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+ */
 
 
 module.exports = router;

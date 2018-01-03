@@ -32,7 +32,13 @@ router.get('/myimages', passport.authenticate('jwt', { session: false }), (req, 
         .then(user => {
             let myGalleries = user.galleries;
             let myImages = myGalleries.map(img => img.images).filter(img => img.length > 0); // Creating array of all images from not empty galleries
-            res.status(200).json(myImages);
+            if (myImages <= 0) {
+                res.status(200).json({
+                    message: 'No images'
+                });
+            } else {
+                res.status(200).json(myImages);
+            }
         })
         .catch(err => {
             res.status(500).json(err);

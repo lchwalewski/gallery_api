@@ -7,7 +7,8 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
     }, // User email, [private]
     username: {
         type: String,
@@ -16,6 +17,12 @@ const userSchema = new Schema({
     }, // User account name, [public]
     password: {
         type: String,
+        required: true
+    },
+    accountType: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user',
         required: true
     },
     galleries: [{
