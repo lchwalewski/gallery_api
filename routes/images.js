@@ -115,7 +115,7 @@ router.post('/upload', passport.authenticate('jwt', { session: false }), (req, r
 const storage = multer.diskStorage({
     destination: '/public/uploads',
     filename: function(req, file, callback) {
-        callback(null, file.filename + '-' + Date.now() + '-' + req.user.username + path.extname(file.originalname));
+        callback(null, file.fieldname + '-' + Date.now() + '-' + req.user.username + path.extname(file.originalname));
     }
 });
 // Init upload

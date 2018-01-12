@@ -21,6 +21,27 @@ router.get('/', (req, res) => {
             res.status(400).json(error);
         });
 });
+router.get('/mygalleries', passport.authenticate('jwt', { session: false }), (req, res) => {
+    User.findOne({ _id: req.user.id })
+        .populate({
+            path: 'galleries',
+            populate: {
+                path: 'images'
+            },
+            select: '-password'
+        })
+        .exec()
+        .then(galleries => {
+            if (galleries !== 0) {
+                res.status(200).json(galleries);
+            } else {
+                res.status(404).json({
+                    message: 'You have no galleries'
+                });
+            }
+        })
+        .catch();
+});
 router.post('/newgallery', passport.authenticate('jwt', { session: false }), (req, res) => {
     const id = req.user._id;
     const gallery = new Gallery({
