@@ -23,22 +23,22 @@ router.get('/myimages', passport.authenticate('jwt', { session: false }), (req, 
     User.findById({ _id: req.user.id })
         .select('-password')
         .populate({
-            path: 'galleries',
+            path: 'images',
             populate: {
-                path: 'images'
+                path: 'galleries'
             },
         })
         .exec()
-        .then(user => {
-            let myGalleries = user.galleries;
-            let myImages = myGalleries.map(img => img.images).filter(img => img.length > 0); // Creating array of all images from not empty galleries
-            if (myImages <= 0) {
-                res.status(200).json({
-                    message: 'No images'
-                });
-            } else {
-                res.status(200).json(myImages);
-            }
+        .then(images => {
+            /*    let myGalleries = user.galleries;
+               let myImages = myGalleries.map(img => img.images).filter(img => img.length > 0); // Creating array of all images from not empty galleries
+               if (myImages <= 0) {
+                   res.status(200).json({
+                       message: 'No images'
+                   });
+               } else { */
+            res.status(200).json(images);
+            //}
         })
         .catch(err => {
             res.status(500).json(err);
@@ -87,6 +87,14 @@ router.post('/upload', passport.authenticate('jwt', { session: false }), (req, r
                 });
                 image.save()
                     .then(result => {
+                        User.findByIdAndUpdate(req.user.id, { $push: { images: image } }, { new: true }, (error, newImageInfos) => {
+                            if (error) {
+                                console.log(error);
+                                console.log('Error adding new image');
+                            } else {
+                                console.log(newImageInfos);
+                            }
+                        });
                         res.status(201).json({
                             success: 'true',
                             message: 'File uploaded',
@@ -107,7 +115,7 @@ router.post('/upload', passport.authenticate('jwt', { session: false }), (req, r
 const storage = multer.diskStorage({
     destination: '/public/uploads',
     filename: function(req, file, callback) {
-        callback(null, file.filename() + '-' + Date.now() + '-' + req.user.username + path.extname(file.originalname));
+        callback(null, file.filename + '-' + Date.now() + '-' + req.user.username + path.extname(file.originalname));
     }
 });
 // Init upload

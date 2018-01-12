@@ -28,6 +28,10 @@ const userSchema = new Schema({
     galleries: [{
         type: Schema.Types.ObjectId,
         ref: 'Gallery',
+    }],
+    images: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Image',
     }]
 }, {
     timestamps: { createdAt: 'create_date', updatedAt: 'update_date' }
