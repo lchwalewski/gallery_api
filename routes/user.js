@@ -21,77 +21,53 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), (req, r
             res.status(500).json(err);
         });
 });
-
-router.post('/register', (req, res) => {
-    const email = req.body.email;
-    const username = req.body.username;
-    // TODO: Check if email or username exists
-    bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-            console.log(err);
-        } else {
-            const user = new User({
-                email: email,
-                password: hash,
-                username: username
-            });
-            user.save()
-                .then((result) => {
-                    console.log(result);
-                    res.status(201).json({
-                        message: 'User registered'
-                    });
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json(err);
-                });
-        }
-
-    });
-
-});
-router.post('/login', (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
-    User.findOne({ email: email })
+router.get('/mygalleries', passport.authenticate('jwt', { session: false }), (req, res) => {
+    User.findOne({ _id: req.user.id })
+        .populate({
+            path: 'galleries',
+            populate: {
+                path: 'images'
+            },
+            select: '-password'
+        })
         .exec()
-        .then(user => {
-            if (!user) {
-                res.status(404).json({
-                    success: false,
-                    msg: 'Authorization error'
-                });
+        .then(galleries => {
+            if (galleries !== 0) {
+                res.status(200).json(galleries);
             } else {
-                user.comparePassword(password, (err, isMatch) => {
-                    if (err) console.log(err);
-                    if (isMatch) {
-                        const token = jwt.sign(user.toJSON(), config.jwtSecret, {
-                            expiresIn: 604800 // 1 week
-                        });
-                        res.status(201).json({
-                            token: 'JWT ' + token,
-                            user: {
-                                id: user.id,
-                                email: user.email,
-                                username: user.username,
-                                accountType: user.accountType
-                            }
-                        });
-                    } else {
-                        return res.status(400).json({
-                            success: false,
-                            msg: 'Wrong password or email'
-                        });
-                    }
+                res.status(404).json({
+                    message: 'You have no galleries'
                 });
             }
         })
+        .catch();
+});
+router.get('/myimages', passport.authenticate('jwt', { session: false }), (req, res) => {
+    User.findById({ _id: req.user.id })
+        .select('-password')
+        .populate({
+            path: 'images',
+            populate: {
+                path: 'galleries'
+            },
+        })
+        .exec()
+        .then(images => {
+            /*    let myGalleries = user.galleries;
+               let myImages = myGalleries.map(img => img.images).filter(img => img.length > 0); // Creating array of all images from not empty galleries
+               if (myImages <= 0) {
+                   res.status(200).json({
+                       message: 'No images'
+                   });
+               } else { */
+            res.status(200).json(images);
+            //}
+        })
         .catch(err => {
-            console.log(err);
             res.status(500).json(err);
         });
 });
+
 
 
 module.exports = router;

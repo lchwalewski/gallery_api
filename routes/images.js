@@ -8,37 +8,12 @@ const User = require('../models/user');
 const Gallery = require('../models/gallery');
 const Image = require('../models/image');
 
-router.get('/', (req, res) => {
+router.get('/all', (req, res) => {
     Image.find({ public: true })
         .populate('owner', ['_id', 'username'])
         .exec()
         .then(images => {
             res.status(200).json(images);
-        })
-        .catch(err => {
-            res.status(500).json(err);
-        });
-});
-router.get('/myimages', passport.authenticate('jwt', { session: false }), (req, res) => {
-    User.findById({ _id: req.user.id })
-        .select('-password')
-        .populate({
-            path: 'images',
-            populate: {
-                path: 'galleries'
-            },
-        })
-        .exec()
-        .then(images => {
-            /*    let myGalleries = user.galleries;
-               let myImages = myGalleries.map(img => img.images).filter(img => img.length > 0); // Creating array of all images from not empty galleries
-               if (myImages <= 0) {
-                   res.status(200).json({
-                       message: 'No images'
-                   });
-               } else { */
-            res.status(200).json(images);
-            //}
         })
         .catch(err => {
             res.status(500).json(err);
