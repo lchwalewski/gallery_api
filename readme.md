@@ -22,8 +22,8 @@ Readme alpha version 1.
 * GET /image/:id [x]
 * POST /upload [x]
 * POST /image/:id/vote [x]
-* PUT /image/:id/edit []
-* DEL /image/:id []
+* PUT /image/:id/edit [x]
+* DEL /image/:id [x]
 
 ### Gallery ###
  * GET /:id/images []

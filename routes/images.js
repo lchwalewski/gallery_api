@@ -35,6 +35,35 @@ router.get('/image/:id', passport.authenticate('jwt', { session: false }), (req,
             });
         });
 });
+router.put('/image/:id', (req, res) => {
+    const id = req.params.id;
+    Image.findByIdAndUpdate(id, { $set: { name: req.body.name, description: req.body.description } }, { new: true }, (error, editedImage) => {
+        if (error) return console.log(error) && res.status(500).json({ error: error.message });
+        res.status(200).json({
+            editedImage: editedImage
+        });
+    });
+});
+router.delete('/image/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+    const id = req.params.id;
+    Image.findByIdAndRemove(id)
+        .where('owner').equals(req.user.id)
+        .then(deletedImage => {
+            if (deletedImage <= 0) {
+                res.status(403).json({
+                    error: 'Image with this ID not found'
+                });
+            } else {
+                res.status(200).json({
+                    message: 'Image deleted',
+                    deletedImage: deletedImage
+                });
+            }
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+})
 router.post('/upload', passport.authenticate('jwt', { session: false }), (req, res) => {
     upload(req, res, err => {
         if (err) {
@@ -58,6 +87,7 @@ router.post('/upload', passport.authenticate('jwt', { session: false }), (req, r
                     size: req.file.size,
                     mimetype: req.file.mimetype,
                     encoding: req.file.encoding,
+                    description: req.body.description,
                     owner: req.user
                 });
                 image.save()

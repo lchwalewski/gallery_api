@@ -33,7 +33,8 @@ const imageSchema = new Schema({
     }, // Number of "likes"
     description: {
         type: String,
-        required: false
+        required: false,
+        default: () => 'Image added at ' + new Date().toGMTString()
     }, // Description of image 
     public: {
         type: Boolean,
