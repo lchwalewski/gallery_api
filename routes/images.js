@@ -44,6 +44,15 @@ router.put('/image/:id', (req, res) => {
         });
     });
 });
+router.put('/image/:id/vote', (req, res) => {
+    const id = req.params.id;
+    Image.findByIdAndUpdate(id, { $inc: { votes: 1 } }, { new: true }, (error, image) => {
+        if (error) console.log(error);
+        res.status(200).json({
+            message: 'Thanks for voting!'
+        });
+    });
+});
 router.delete('/image/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
     const id = req.params.id;
     Image.findByIdAndRemove(id)
@@ -63,7 +72,7 @@ router.delete('/image/:id', passport.authenticate('jwt', { session: false }), (r
         .catch(error => {
             res.status(500).json(error);
         });
-})
+});
 router.post('/upload', passport.authenticate('jwt', { session: false }), (req, res) => {
     upload(req, res, err => {
         if (err) {

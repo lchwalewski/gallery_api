@@ -1,6 +1,9 @@
 # Gallery REST API #
 Readme alpha version 1.
 
+TBD:
+* Unique votes (one user can vote only once for same image)
+
 - - - -
 
 ## Endpoints ##
@@ -15,20 +18,21 @@ Readme alpha version 1.
 * GET /myimages [x]
 * POST /logout []
 * POST /resetpassword []
-* PUT /edit []
+* PUT /edit [x]
 
 ### Images ###
 * GET /all [x]
 * GET /image/:id [x]
 * POST /upload [x]
-* POST /image/:id/vote [x]
+* PUT /image/:id/vote [x]
 * PUT /image/:id/edit [x]
 * DEL /image/:id [x]
 
 ### Gallery ###
- * GET /:id/images []
+ * GET /all [x] 
+ * GET /:id [x]
  * POST /addgallery [x]
- * PUT /:id/edit []
+ * PUT /:id/edit [x]
  * DEL /:id [x]
  * DEL /:id/image/:image_id []
 

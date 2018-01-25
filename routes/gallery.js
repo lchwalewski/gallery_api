@@ -7,7 +7,7 @@ const Gallery = require('../models/gallery');
 const User = require('../models/user');
 
 // Dev route
-router.get('/', (req, res) => {
+router.get('/all', (req, res) => {
     Gallery.find()
         .populate('owner', ['_id', 'username', 'email'])
         .populate('images')
@@ -20,6 +20,31 @@ router.get('/', (req, res) => {
         .catch(error => {
             res.status(400).json(error);
         });
+});
+router.get('/:id', (req, res) => {
+    const id = req.params.id;
+    Gallery.findById(id)
+        .populate('owner', ['_id', 'username', 'email'])
+        .populate('images')
+        .exec()
+        .then(gallery => {
+            res.status(200).json(gallery);
+        })
+        .catch(error => {
+            res.status(500).json(error.message);
+        });
+});
+router.put('/:id/edit', (req, res) => {
+    const id = req.params.id;
+    Gallery.findByIdAndUpdate(id, { $set: { name: req.body.name, public: req.body.public } }, { new: true }, (error, gallery) => {
+        if (error) {
+            res.status(500).json(error.message);
+        } else {
+            res.status(200).json({
+                message: `Gallery name is now ${gallery.name} and visibilty ${gallery.public}`
+            });
+        }
+    });
 });
 router.post('/newgallery', passport.authenticate('jwt', { session: false }), (req, res) => {
     const id = req.user._id;

@@ -21,6 +21,18 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), (req, r
             res.status(500).json(err);
         });
 });
+router.put('/edit', passport.authenticate('jwt', { session: false }), (req, res) => {
+    User.findByIdAndUpdate({ _id: req.user.id }, { $set: { email: req.body.email } }, { new: true }, (error, user) => {
+        if (error) {
+            res.status(500).json(error.message);
+        } else {
+            res.status(200).json({
+                message: `Your email is now ${user.email}`
+            });
+        }
+
+    });
+});
 router.get('/mygalleries', passport.authenticate('jwt', { session: false }), (req, res) => {
     User.findOne({ _id: req.user.id })
         .populate({
