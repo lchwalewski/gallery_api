@@ -48,6 +48,8 @@ router.get('/mygalleries', passport.authenticate('jwt', { session: false }), (re
     .catch()
 })
 router.get('/myimages', passport.authenticate('jwt', { session: false }), (req, res) => {
+  // zamienić wyszukiwanie z kolekcji User na Images
+  // czyli Images.find() gdzie owner.id === user.id
   User.findById({ _id: req.user.id })
     .select('-password')
     .populate({
